@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>Ilias Maragos - Tailor Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- ============================================ -->
+    <!-- WELCOME SCREEN -->
+    <!-- ============================================ -->
+    <section id="screen-welcome" class="screen welcome-screen active">
+        <div class="welcome-background"></div>
+        <div class="welcome-content">
+            <div class="welcome-text">
+                <h1 class="welcome-title">Ilias Maragos</h1>
+            </div>
+            <button class="welcome-button" onclick="startApp()">
+                <span>Welcome</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- HOME SCREEN (NEW DESIGN) -->
+    <!-- ============================================ -->
+    <section id="screen-home" class="screen home-screen">
+        <!-- Background Image -->
+        <div class="home-background"></div>
+
+        <!-- Top Navigation -->
+        <div class="top-nav-new">
+
+            <div class="top-nav-text">
+                <div class="greeting">Welcome!</div>
+                <div class="user-name">Ilias Maragos</div>
+            </div>
+            <div class="top-nav-icons">
+                <div class="bell-icon" onclick="showNotifications()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 16 16">
+                        <g fill="currentColor">
+                            <path
+                                d="M3.6 1.7A.75.75 0 1 0 2.4.799a7 7 0 0 0-1.123 2.247a.75.75 0 1 0 1.44.418c.187-.644.489-1.24.883-1.764m10-.901a.75.75 0 1 0-1.2.9a5.5 5.5 0 0 1 .883 1.765a.75.75 0 1 0 1.44-.418A7 7 0 0 0 13.6.799" />
+                            <path fill-rule="evenodd"
+                                d="M8 1a4 4 0 0 1 4 4v2.379c0 .398.158.779.44 1.06l1.267 1.268a1 1 0 0 1 .293.707V11a1 1 0 0 1-1 1h-2a3 3 0 1 1-6 0H3a1 1 0 0 1-1-1v-.586a1 1 0 0 1 .293-.707L3.56 8.44A1.5 1.5 0 0 0 4 7.38V5a4 4 0 0 1 4-4m0 12.5A1.5 1.5 0 0 1 6.5 12h3A1.5 1.5 0 0 1 8 13.5"
+                                clip-rule="evenodd" />
+                        </g>
+                    </svg>
+                </div>
+                <div class="language-icon" onclick="toggleLanguage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 17.93c-3.95-.49-7-3.85-7-7.93c0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41c0 2.08-.8 3.97-2.1 5.39" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <!-- This Week Card -->
+            <div class="glass-card">
+                <div class="card-title">This Week</div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Active Orders</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Ready For Delivery</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Time Card -->
+            <div class="glass-card">
+                <div class="card-title">All Time</div>
+                <div class="stats-row stats-row-split">
+                    <div class="stat-item">
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number pending-color">3</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Customers Popup -->
+        <div class="recent-customers-popup">
+            <div class="popup-handle"></div>
+            <div class="popup-header">Recent Customers</div>
+            <div class="customer-list" id="recent-customers-list">
+                <!-- Customer cards will be inserted here by JavaScript -->
+                <div class="customer-card glass-card-customer" onclick="showCustomerDetail(1)">
+                    <div class="customer-info">
+                        <div class="customer-name">Nikos Papa</div>
+                        <div class="customer-garment">Pants</div>
+                        <div class="customer-status">
+                            <span class="status-badge status-progress">In Progress</span>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="customer-arrow">→</div>
+                </div>
+
+                <div class="customer-card glass-card-customer" onclick="showCustomerDetail(2)">
+                    <div class="customer-info">
+                        <div class="customer-name">Priya Sharma</div>
+                        <div class="customer-garment">Shirt</div>
+                        <div class="customer-status">
+                            <span class="status-badge status-progress">In Progress</span>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="customer-arrow">→</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav-new">
+            <div class="nav-item-new active" onclick="showScreen('screen-home')">
+                <div class="nav-icon-new">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" />
+                    </svg>
+                </div>
+                <div class="nav-label-new">Home</div>
+            </div>
+
+            <button class="plus-button-new" onclick="togglePlusMenu()">
+                <span>+</span>
+            </button>
+
+            <div class="nav-item-new" onclick="showScreen('screen-customers')">
+                <div class="nav-icon-new">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5" />
+                    </svg>
+                </div>
+                <div class="nav-label-new">Customers</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- CUSTOMERS SCREEN (NEW DESIGN) -->
+    <!-- ============================================ -->
+    <section id="screen-customers" class="screen">
+            <!-- Background Image -->
+            <div class="customers-background"></div>
+
+            <!-- Top Bar -->
+            <div class="top-bar-customers">
+                <div class="top-bar-text">
+                    <div class="customers-greeting">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+                                fill="currentColor" />
+                        </svg>
+                        Costumers
+                    </div>
+                    <div class="user-name-customers">Ilias Maragos</div>
+                </div>
+                <div class="top-bar-icons-customers">
+                    <div class="bell-icon-customers" onclick="showNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6 1.7A.75.75 0 1 0 2.4.799a7 7 0 0 0-1.123 2.247a.75.75 0 1 0 1.44.418c.187-.644.489-1.24.883-1.764m10-.901a.75.75 0 1 0-1.2.9a5.5 5.5 0 0 1 .883 1.765a.75.75 0 1 0 1.44-.418A7 7 0 0 0 13.6.799"
+                                fill="currentColor" />
+                            <path fill-rule="evenodd"
+                                d="M8 1a4 4 0 0 1 4 4v2.379c0 .398.158.779.44 1.06l1.267 1.268a1 1 0 0 1 .293.707V11a1 1 0 0 1-1 1h-2a3 3 0 1 1-6 0H3a1 1 0 0 1-1-1v-.586a1 1 0 0 1 .293-.707L3.56 8.44A1.5 1.5 0 0 0 4 7.38V5a4 4 0 0 1 4-4m0 12.5A1.5 1.5 0 0 1 6.5 12h3A1.5 1.5 0 0 1 8 13.5"
+                                clip-rule="evenodd" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="globe-icon-customers" onclick="toggleLanguage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 17.93c-3.95-.49-7-3.85-7-7.93c0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41c0 2.08-.8 3.97-2.1 5.39"
+                                fill="currentColor" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar-customers">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"
+                        fill="currentColor" />
+                </svg>
+                <input type="text" id="customer-search" placeholder="Search Costumer" />
+            </div>
+
+            <!-- Customers Popup - UNIFIED STRUCTURE -->
+            <div class="customers-section-title">
+                <div class="customers-popup-title">Costumers</div>
+                <div class="customers-list-container" id="customers-list-container">
+                    <!-- Customer cards will be dynamically loaded here -->
+                    <!-- If no customers, show this message: -->
+                    <div class="no-customers-message">No customers found</div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav-customers">
+                <div class="nav-item-customers" onclick="showScreen('screen-home')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" fill="currentColor" />
+                    </svg>
+                </div>
+
+                <button class="plus-button-customers" onclick="togglePlusMenu()">
+                    <span>+</span>
+                </button>
+
+                <div class="nav-item-customers active">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+        <!-- Plus Menu Popup - REDESIGNED -->
+        <div id="plus-menu-new" class="plus-menu-new">
+            <div class="plus-menu-container">
+                <div class="plus-menu-card" onclick="closePlusMenu(); setTimeout(() => createNewOrder(), 100);">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8zm-1 15h-2v-2H9v-2h2v-2h2v2h2v2h-2zm0-8V3.5L18.5 9z" fill="white"/>
+                    </svg>
+                    <span>New Order</span>
+                </div>
+
+                <div class="plus-menu-card" onclick="closePlusMenu(); setTimeout(() => createNewCustomer(), 100);">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m-9-2V7H4v3H1v2h3v3h2v-3h3v-2zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4" fill="white"/>
+                    </svg>
+                    <span>New Customer</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Overlay -->
+        <div id="modal-overlay-new" class="modal-overlay-new" onclick="closePlusMenu()"></div>
+
+        <!-- ============================================ -->
+        <!-- NEW CUSTOMER SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-new-customer" class="screen">
+            <!-- Background Image -->
+            <div class="new-customer-background"></div>
+
+            <!-- Top Bar -->
+            <div class="top-bar-new-customer">
+                <div class="top-bar-text">
+                    <div class="new-customer-title">New Costumer</div>
+                    <div class="user-name-new-customer">Ilias Maragos</div>
+                </div>
+                <div class="top-bar-icons-new-customer">
+                    <div class="bell-icon-new-customer" onclick="showNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6 1.7A.75.75 0 1 0 2.4.799a7 7 0 0 0-1.123 2.247a.75.75 0 1 0 1.44.418c.187-.644.489-1.24.883-1.764m10-.901a.75.75 0 1 0-1.2.9a5.5 5.5 0 0 1 .883 1.765a.75.75 0 1 0 1.44-.418A7 7 0 0 0 13.6.799"
+                                fill="currentColor" />
+                            <path fill-rule="evenodd"
+                                d="M8 1a4 4 0 0 1 4 4v2.379c0 .398.158.779.44 1.06l1.267 1.268a1 1 0 0 1 .293.707V11a1 1 0 0 1-1 1h-2a3 3 0 1 1-6 0H3a1 1 0 0 1-1-1v-.586a1 1 0 0 1 .293-.707L3.56 8.44A1.5 1.5 0 0 0 4 7.38V5a4 4 0 0 1 4-4m0 12.5A1.5 1.5 0 0 1 6.5 12h3A1.5 1.5 0 0 1 8 13.5"
+                                clip-rule="evenodd" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="globe-icon-new-customer" onclick="toggleLanguage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 17.93c-3.95-.49-7-3.85-7-7.93c0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41c0 2.08-.8 3.97-2.1 5.39"
+                                fill="currentColor" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="new-customer-form-container">
+                <h2 class="form-title">Customer Details</h2>
+
+                <form id="customer-form" onsubmit="return handleCustomerSubmit(event)">
+                    <!-- Name Field -->
+                    <div class="form-field">
+                        <label for="customer-name" class="field-label">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
+                                    fill="currentColor" />
+                            </svg>
+                            Name
+                        </label>
+                        <input type="text" id="customer-name" class="form-input" placeholder="[......]" required />
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div class="form-field">
+                        <label for="customer-phone" class="field-label">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24c1.12.37 2.33.57 3.57.57c.55 0 1 .45 1 1V20c0 .55-.45 1-1 1c-9.39 0-17-7.61-17-17c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1c0 1.25.2 2.45.57 3.57c.11.35.03.74-.25 1.02z"
+                                    fill="currentColor" />
+                            </svg>
+                            Phone
+                        </label>
+                        <input type="tel" id="customer-phone" class="form-input" placeholder="[......]"
+                            inputmode="numeric" pattern="[0-9]*" required />
+                    </div>
+
+                    <!-- Address Field -->
+                    <div class="form-field">
+                        <label for="customer-address" class="field-label">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5"
+                                    fill="currentColor" />
+                            </svg>
+                            Address
+                        </label>
+                        <input type="text" id="customer-address" class="form-input" placeholder="[......]" />
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-field">
+                        <label for="customer-email" class="field-label">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5l-8-5V6l8 5l8-5z"
+                                    fill="currentColor" />
+                            </svg>
+                            Email
+                        </label>
+                        <input type="email" id="customer-email" class="form-input" placeholder="[......]" />
+                    </div>
+
+                    <!-- Save Button -->
+                    <button type="submit" class="save-customer-button">
+                        SAVE COSTUMER
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav-new-customer">
+                <div class="nav-item-new-customer" onclick="showScreen('screen-home')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" fill="currentColor" />
+                    </svg>
+                </div>
+
+                <button class="plus-button-new-customer active" onclick="togglePlusMenu()">
+                    <span>+</span>
+                </button>
+
+                <div class="nav-item-new-customer" onclick="showScreen('screen-customers')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- CUSTOMER DETAIL SCREEN - NEW! -->
+        <!-- ============================================ -->
+        <section id="screen-customer-detail" class="screen">
+            <!-- Background Image -->
+            <div class="customer-detail-background"></div>
+
+            <!-- Top Bar -->
+            <div class="top-bar-customer-detail">
+                <div class="top-bar-text">
+                    <div class="customer-detail-name" id="customer-detail-header-name">Nikos Papa</div>
+                    <div class="user-name-customer-detail">Ilias Maragos</div>
+                </div>
+                <div class="top-bar-icons-customer-detail">
+                    <div class="bell-icon-customer-detail" onclick="showNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6 1.7A.75.75 0 1 0 2.4.799a7 7 0 0 0-1.123 2.247a.75.75 0 1 0 1.44.418c.187-.644.489-1.24.883-1.764m10-.901a.75.75 0 1 0-1.2.9a5.5 5.5 0 0 1 .883 1.765a.75.75 0 1 0 1.44-.418A7 7 0 0 0 13.6.799"
+                                fill="currentColor" />
+                            <path fill-rule="evenodd"
+                                d="M8 1a4 4 0 0 1 4 4v2.379c0 .398.158.779.44 1.06l1.267 1.268a1 1 0 0 1 .293.707V11a1 1 0 0 1-1 1h-2a3 3 0 1 1-6 0H3a1 1 0 0 1-1-1v-.586a1 1 0 0 1 .293-.707L3.56 8.44A1.5 1.5 0 0 0 4 7.38V5a4 4 0 0 1 4-4m0 12.5A1.5 1.5 0 0 1 6.5 12h3A1.5 1.5 0 0 1 8 13.5"
+                                clip-rule="evenodd" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="globe-icon-customer-detail" onclick="toggleLanguage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 17.93c-3.95-.49-7-3.85-7-7.93c0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41c0 2.08-.8 3.97-2.1 5.39"
+                                fill="currentColor" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Content Container -->
+            <div class="customer-detail-content-container">
+                <h2 class="customer-detail-section-title">Customer Details</h2>
+
+                <!-- Customer Info Cards Container -->
+                <div id="customer-detail-info-container">
+                    <!-- Name Card -->
+                    <div class="customer-detail-info-card">
+                        <div class="info-card-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
+                                    fill="currentColor" />
+                            </svg>
+                            <h3>Name</h3>
+                        </div>
+                        <p class="info-card-value" id="detail-customer-name">Nikos Papa</p>
+                    </div>
+
+                    <!-- Phone Card -->
+                    <div class="customer-detail-info-card">
+                        <div class="info-card-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24c1.12.37 2.33.57 3.57.57c.55 0 1 .45 1 1V20c0 .55-.45 1-1 1c-9.39 0-17-7.61-17-17c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1c0 1.25.2 2.45.57 3.57c.11.35.03.74-.25 1.02z"
+                                    fill="currentColor" />
+                            </svg>
+                            <h3>Phone</h3>
+                        </div>
+                        <p class="info-card-value" id="detail-customer-phone">0999</p>
+                    </div>
+
+                    <!-- Address Card -->
+                    <div class="customer-detail-info-card">
+                        <div class="info-card-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5"
+                                    fill="currentColor" />
+                            </svg>
+                            <h3>Address</h3>
+                        </div>
+                        <p class="info-card-value" id="detail-customer-address">[......]</p>
+                    </div>
+
+                    <!-- Email Card -->
+                    <div class="customer-detail-info-card">
+                        <div class="info-card-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5l-8-5V6l8 5l8-5z"
+                                    fill="currentColor" />
+                            </svg>
+                            <h3>Email</h3>
+                        </div>
+                        <p class="info-card-value" id="detail-customer-email">[......]</p>
+                    </div>
+                </div>
+
+                <!-- New Order Button -->
+                <button class="new-order-button" onclick="createOrderForCustomer()">
+                    + New Order
+                </button>
+
+                <!-- Orders Section -->
+                <h2 class="orders-section-title">
+                    <span id="orders-count-text">Orders (0)</span>
+                </h2>
+
+                <!-- Orders List Container -->
+                <div id="customer-orders-list">
+                    <!-- Order cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav-customer-detail">
+                <div class="nav-item-customer-detail" onclick="showScreen('screen-home')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" fill="currentColor" />
+                    </svg>
+                </div>
+
+                <button class="plus-button-customer-detail" onclick="togglePlusMenu()">
+                    <span>+</span>
+                </button>
+
+                <div class="nav-item-customer-detail" onclick="showScreen('screen-customers')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <script src="db.js"></script>
+        <script src="app.js"></script>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js');
+            }
+
+            // Start app function - called when "Welcome" button is clicked
+            function startApp() {
+                const welcomeScreen = document.getElementById('screen-welcome');
+                welcomeScreen.classList.add('fade-out');
+
+                setTimeout(() => {
+                    welcomeScreen.classList.remove('active');
+                    welcomeScreen.style.display = 'none';
+                    showScreen('screen-home');
+                }, 600);
+            }
+        </script>
+        <!-- ============================================ -->
+        <!-- NEW ORDER SCREEN -->
+        <!-- ============================================ -->
+        <!-- ============================================ -->
+        <!-- NEW ORDER SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-new-order" class="screen">
+            <!-- Background Image -->
+            <div class="new-order-background"></div>
+
+            <!-- Top Bar -->
+            <div class="top-bar-new-order">
+                <div class="top-bar-text">
+                    <div class="new-order-title">New Order</div>
+                    <div class="user-name-new-order">Ilias Maragos</div>
+                </div>
+                <div class="top-bar-icons-new-order">
+                    <div class="bell-icon-new-order" onclick="showNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6 1.7A.75.75 0 1 0 2.4.799a7 7 0 0 0-1.123 2.247a.75.75 0 1 0 1.44.418c.187-.644.489-1.24.883-1.764m10-.901a.75.75 0 1 0-1.2.9a5.5 5.5 0 0 1 .883 1.765a.75.75 0 1 0 1.44-.418A7 7 0 0 0 13.6.799"
+                                fill="currentColor" />
+                            <path fill-rule="evenodd"
+                                d="M8 1a4 4 0 0 1 4 4v2.379c0 .398.158.779.44 1.06l1.267 1.268a1 1 0 0 1 .293.707V11a1 1 0 0 1-1 1h-2a3 3 0 1 1-6 0H3a1 1 0 0 1-1-1v-.586a1 1 0 0 1 .293-.707L3.56 8.44A1.5 1.5 0 0 0 4 7.38V5a4 4 0 0 1 4-4m0 12.5A1.5 1.5 0 0 1 6.5 12h3A1.5 1.5 0 0 1 8 13.5"
+                                clip-rule="evenodd" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="globe-icon-new-order" onclick="toggleLanguage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 17.93c-3.95-.49-7-3.85-7-7.93c0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41c0 2.08-.8 3.97-2.1 5.39"
+                                fill="currentColor" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Content Container -->
+            <div class="new-order-content-container">
+                <h2 class="new-order-section-title">Order Details</h2>
+
+                <form id="new-order-form" onsubmit="return handleNewOrderSubmit(event)">
+                    <!-- Customer Selection -->
+                    <div class="new-order-field">
+                        <label for="order-customer-select" class="field-label-order">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
+                                    fill="currentColor" />
+                            </svg>
+                            Costumer
+                        </label>
+                        <select id="order-customer-select" class="form-input-order" required>
+                            <option value="">Select Costumer...</option>
+                        </select>
+                    </div>
+
+                    <!-- Order Date -->
+                    <div class="new-order-field">
+                        <label for="order-date-input" class="field-label-order">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"
+                                    fill="currentColor" />
+                            </svg>
+                            Order Date
+                        </label>
+                        <input type="date" id="order-date-input" class="form-input-order" required />
+                    </div>
+
+                    <!-- Delivery Date -->
+                    <div class="new-order-field">
+                        <label for="delivery-date-input" class="field-label-order">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"
+                                    fill="currentColor" />
+                            </svg>
+                            Delivery Date
+                        </label>
+                        <input type="date" id="delivery-date-input" class="form-input-order" />
+                    </div>
+
+                    <!-- Garment Type Selection -->
+                    <h3 class="garment-type-title">Garment Type</h3>
+                    <div class="garment-buttons-container">
+                        <button type="button" class="garment-button" data-garment="jacket"
+                            onclick="selectGarment('jacket')">
+                            <svg width="40" height="40" viewBox="0 0 48 48" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="3">
+                                    <path d="M6 10L18 4H30L42 10L40 35H34V44H24H14V35H8L6 10Z" />
+                                    <path d="M14 35L14 20" />
+                                    <path d="M34 35V20" />
+                                    <path d="M24 10C27.3137 10 30 7.31371 30 4H18C18 7.31371 20.6863 10 24 10Z" />
+                                </g>
+                            </svg>
+                            <span>Jacket</span>
+                        </button>
+                        <button type="button" class="garment-button" data-garment="pants"
+                            onclick="selectGarment('pants')">
+                            <svg width="40" height="40" viewBox="0 0 256 256" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill="currentColor"
+                                    d="m223.88 214l-22-176A16 16 0 0 0 186 24H70a16 16 0 0 0-15.88 14l-22 176A16 16 0 0 0 48 232h40.69a16 16 0 0 0 15.51-12.06l23.8-92l23.79 91.94A16 16 0 0 0 167.31 232H208a16 16 0 0 0 15.88-18M192.9 95.2A32.13 32.13 0 0 1 169 72h21ZM186 40l2 16H68l2-16ZM66 72h21a32.13 32.13 0 0 1-23.9 23.2Zm22.69 144H48l13-104.27A48.08 48.08 0 0 0 103.32 72H120v23Zm78.6-.06L136 95V72h16.68A48.08 48.08 0 0 0 195 111.73L208 216Z" />
+                            </svg>
+                            <span>Pants</span>
+                        </button>
+                        <button type="button" class="garment-button" data-garment="shirt"
+                            onclick="selectGarment('shirt')">
+                            <svg width="40" height="40" viewBox="0 0 2048 2048" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill="currentColor"
+                                    d="m2048 384l-128 512h-256v1024H384V896H128L0 384l768-256q0 53 20 99t55 82t81 55t100 20q53 0 99-20t82-55t55-81t20-100zm-153 84l-524-175q-24 50-60 90t-82 69t-97 44t-108 16q-56 0-108-15t-97-44t-81-69t-61-91L153 468l75 300h284v1024h1024V768h284z" />
+                            </svg>
+                            <span>Shirt</span>
+                        </button>
+                    </div>
+
+                    <!-- Measurements Section (Dynamic) -->
+                    <div id="measurements-section" style="display: none;">
+                        <h2 class="measurements-title">Measurements</h2>
+                        <div id="measurements-fields-container"></div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <button type="submit" class="save-order-button">
+                        SAVE ORDER
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav-new-order">
+                <div class="nav-item-new-order" onclick="showScreen('screen-home')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" fill="currentColor" />
+                    </svg>
+                </div>
+
+                <button class="plus-button-new-order active" onclick="togglePlusMenu()">
+                    <span>+</span>
+                </button>
+
+                <div class="nav-item-new-order" onclick="showScreen('screen-customers')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+        <!-- ============================================ -->
+        <!-- ORDER DETAIL/EDIT SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-order-detail" class="screen">
+            <!-- Background Image -->
+            <div class="order-detail-background"></div>
+
+            <!-- Top Bar -->
+            <div class="top-bar-order-detail">
+                <div class="top-bar-text">
+                    <div class="order-detail-title">Order Details</div>
+                    <div class="user-name-order-detail">Ilias Maragos</div>
+                </div>
+                <div class="top-bar-icons-order-detail">
+                    <div class="bell-icon-order-detail" onclick="showNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6 1.7A.75.75 0 1 0 2.4.799a7 7 0 0 0-1.123 2.247a.75.75 0 1 0 1.44.418c.187-.644.489-1.24.883-1.764m10-.901a.75.75 0 1 0-1.2.9a5.5 5.5 0 0 1 .883 1.765a.75.75 0 1 0 1.44-.418A7 7 0 0 0 13.6.799"
+                                fill="currentColor" />
+                            <path fill-rule="evenodd"
+                                d="M8 1a4 4 0 0 1 4 4v2.379c0 .398.158.779.44 1.06l1.267 1.268a1 1 0 0 1 .293.707V11a1 1 0 0 1-1 1h-2a3 3 0 1 1-6 0H3a1 1 0 0 1-1-1v-.586a1 1 0 0 1 .293-.707L3.56 8.44A1.5 1.5 0 0 0 4 7.38V5a4 4 0 0 1 4-4m0 12.5A1.5 1.5 0 0 1 6.5 12h3A1.5 1.5 0 0 1 8 13.5"
+                                clip-rule="evenodd" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="globe-icon-order-detail" onclick="toggleLanguage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 17.93c-3.95-.49-7-3.85-7-7.93c0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41c0 2.08-.8 3.97-2.1 5.39"
+                                fill="currentColor" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Content Container -->
+            <div class="order-detail-content-container">
+                <h2 class="order-detail-section-title">Order Information</h2>
+
+                <form id="order-detail-form" onsubmit="return handleOrderUpdate(event)">
+                    <!-- Customer Name (READ-ONLY) -->
+                    <div class="order-detail-field order-detail-field-readonly">
+                        <label class="field-label-order-detail">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
+                                    fill="currentColor" />
+                            </svg>
+                            Customer
+                        </label>
+                        <div class="readonly-value" id="order-customer-name">Nikos Papa</div>
+                    </div>
+
+                    <!-- Order Date (READ-ONLY) -->
+                    <div class="order-detail-field order-detail-field-readonly">
+                        <label class="field-label-order-detail">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"
+                                    fill="currentColor" />
+                            </svg>
+                            Order Date
+                        </label>
+                        <div class="readonly-value" id="order-date-display">Jan 11, 2026</div>
+                    </div>
+
+                    <!-- Delivery Date (EDITABLE) -->
+                    <div class="order-detail-field">
+                        <label for="order-delivery-date-edit" class="field-label-order-detail">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"
+                                    fill="currentColor" />
+                            </svg>
+                            Delivery Date
+                        </label>
+                        <input type="date" id="order-delivery-date-edit" class="form-input-order-detail" />
+                    </div>
+
+                    <!-- Garment Type (READ-ONLY with icon) -->
+                    <div class="order-detail-field order-detail-field-readonly">
+                        <label class="field-label-order-detail">
+                            Garment Type
+                        </label>
+                        <div class="garment-type-display" id="order-garment-display">
+                            <svg width="40" height="40" viewBox="0 0 48 48" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="3">
+                                    <path d="M6 10L18 4H30L42 10L40 35H34V44H24H14V35H8L6 10Z" />
+                                    <path d="M14 35L14 20" />
+                                    <path d="M34 35V20" />
+                                    <path d="M24 10C27.3137 10 30 7.31371 30 4H18C18 7.31371 20.6863 10 24 10Z" />
+                                </g>
+                            </svg>
+                            <span id="order-garment-text">Jacket</span>
+                        </div>
+                    </div>
+
+                    <!-- Status (Mark as Completed) -->
+                    <div class="order-detail-field">
+                        <label class="field-label-order-detail">
+                            Status
+                        </label>
+                        <div class="status-checkbox-container">
+                            <input type="checkbox" id="order-completed-checkbox" class="status-checkbox" />
+                            <label for="order-completed-checkbox" class="status-checkbox-label">Mark as
+                                Completed</label>
+                        </div>
+                    </div>
+
+                    <!-- Measurements Section -->
+                    <h2 class="measurements-title-order-detail">Measurements</h2>
+                    <div id="order-measurements-container">
+                        <!-- Measurement fields will be dynamically inserted here -->
+                    </div>
+
+                    <!-- Save Changes Button -->
+                    <button type="submit" class="save-changes-button">
+                        SAVE CHANGES
+                    </button>
+
+                    <!-- Delete Order Button -->
+                    <button type="button" class="delete-order-button" onclick="confirmDeleteOrder()">
+                        DELETE ORDER
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav-order-detail">
+                <div class="nav-item-order-detail" onclick="showScreen('screen-home')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8z" fill="currentColor" />
+                    </svg>
+                </div>
+
+                <button class="plus-button-order-detail" onclick="togglePlusMenu()">
+                    <span>+</span>
+                </button>
+
+                <div class="nav-item-order-detail" onclick="showScreen('screen-customers')">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+</body>
+
+</html>
