@@ -124,7 +124,7 @@ closePlusMenu();
     
     // Load recent customers when home screen is shown
     if (screenId === 'screen-home') {
-        displayRecentCustomers();
+        loadRecentCustomers();
     }
 
     document.getElementById(screenId).classList.add('active');
@@ -239,8 +239,195 @@ function toggleMenu() {
     alert('Menu - Coming soon!\nSettings, Profile, Help');
 }
 
-function showNotifications() {
-    alert('Notifications - Coming soon!\nDelivery reminders, Order updates');
+// ==================== NOTIFICATIONS SYSTEM ====================
+
+async function showNotifications() {
+    const orders = await getAllOrders();
+    const customers = await getAllCustomers();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Categorize orders
+    const overdueOrders = [];
+    const todayOrders = [];
+    const upcomingOrders = [];
+
+    for (const order of orders) {
+        if (order.completed) continue; // Skip completed orders
+
+        const customer = customers.find(c => c.id === order.customerId);
+        if (!customer) continue;
+
+        if (!order.deliveryDate) {
+            // Orders without delivery date - add to upcoming with special flag
+            upcomingOrders.push({ ...order, customerName: customer.name, noDeliveryDate: true });
+            continue;
+        }
+
+        const deliveryDate = new Date(order.deliveryDate);
+        deliveryDate.setHours(0, 0, 0, 0);
+
+        const orderWithCustomer = { ...order, customerName: customer.name };
+
+        if (deliveryDate < today) {
+            overdueOrders.push(orderWithCustomer);
+        } else if (deliveryDate.getTime() === today.getTime()) {
+            todayOrders.push(orderWithCustomer);
+        } else if (deliveryDate <= new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)) {
+            upcomingOrders.push(orderWithCustomer);
+        }
+    }
+
+    // Create and show popup
+    createNotificationPopup(overdueOrders, todayOrders, upcomingOrders);
+}
+
+function createNotificationPopup(overdue, today, upcoming) {
+    // Remove existing popup if any
+    const existingPopup = document.getElementById('notification-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    const existingOverlay = document.getElementById('notification-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'notification-overlay';
+    overlay.className = 'notification-overlay';
+    overlay.onclick = closeNotifications;
+    document.body.appendChild(overlay);
+
+    // Create popup
+    const popup = document.createElement('div');
+    popup.id = 'notification-popup';
+    popup.className = 'notification-popup';
+
+    let content = `
+        <div class="notification-popup-header">
+            <div class="notification-popup-title">Delivery Reminders</div>
+            <button class="notification-close-btn" onclick="closeNotifications()">×</button>
+        </div>
+        <div class="notification-popup-content">
+    `;
+
+    // Check if there are any notifications
+    if (overdue.length === 0 && today.length === 0 && upcoming.length === 0) {
+        content += `
+            <div class="notification-empty">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔔</div>
+                <div>No delivery reminders</div>
+                <div style="font-size: 14px; margin-top: 8px;">All orders are on track!</div>
+            </div>
+        `;
+    } else {
+        // Overdue orders
+        if (overdue.length > 0) {
+            content += `
+                <div class="notification-section">
+                    <div class="notification-section-title">⚠️ Overdue (${overdue.length})</div>
+            `;
+            overdue.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                const daysOverdue = Math.floor((new Date() - new Date(order.deliveryDate)) / (1000 * 60 * 60 * 24));
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); showOrderDetail('${order.id}');">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-overdue">OVERDUE</div>
+                        </div>
+                        <div class="notification-card-details">
+                            ${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order
+                        </div>
+                        <div class="notification-card-date">
+                            ${daysOverdue} ${daysOverdue === 1 ? 'day' : 'days'} overdue
+                        </div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+
+        // Today's orders
+        if (today.length > 0) {
+            content += `
+                <div class="notification-section">
+                    <div class="notification-section-title">📅 Due Today (${today.length})</div>
+            `;
+            today.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); showOrderDetail('${order.id}');">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-today">TODAY</div>
+                        </div>
+                        <div class="notification-card-details">
+                            ${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order
+                        </div>
+                        <div class="notification-card-date">
+                            Ready for pickup today
+                        </div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+
+        // Upcoming orders
+        if (upcoming.length > 0) {
+            content += `
+                <div class="notification-section">
+                    <div class="notification-section-title">📆 This Week (${upcoming.length})</div>
+            `;
+            upcoming.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                const daysUntil = order.noDeliveryDate ? null : Math.ceil((new Date(order.deliveryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); showOrderDetail('${order.id}');">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-upcoming">UPCOMING</div>
+                        </div>
+                        <div class="notification-card-details">
+                            ${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order
+                        </div>
+                        <div class="notification-card-date">
+                            ${order.noDeliveryDate ? 'No delivery date set' : `Due in ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`}
+                        </div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+    }
+
+    content += `</div>`;
+    popup.innerHTML = content;
+
+    document.body.appendChild(popup);
+
+    // Animate in
+    setTimeout(() => {
+        overlay.classList.add('active');
+        popup.classList.add('active');
+    }, 10);
+}
+
+function closeNotifications() {
+    const popup = document.getElementById('notification-popup');
+    const overlay = document.getElementById('notification-overlay');
+
+    if (popup) popup.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+
+    setTimeout(() => {
+        if (popup) popup.remove();
+        if (overlay) overlay.remove();
+    }, 300);
 }
 
 // ==================== STATS LOADING ====================
@@ -273,73 +460,73 @@ async function updateStats() {
 
 async function loadRecentCustomers() {
     const orders = await getAllOrders();
-    const customerIds = new Set();
-    const recentCustomers = [];
-    
-    // Get unique customers from recent orders
-    orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-    
+    const customers = await getAllCustomers();
+    const container = document.getElementById('recent-customers-list');
+
+    if (!container) return;
+
+    // Get unique customers with their most recent order
+    const customerOrderMap = new Map();
+
+    // Sort orders by date (newest first) - use createdAt if available, otherwise orderDate
+    orders.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.orderDate);
+        const dateB = new Date(b.createdAt || b.orderDate);
+        return dateB - dateA;
+    });
+
+    // Get last 3 unique customers with orders
     for (const order of orders) {
-        if (!customerIds.has(order.customerId) && recentCustomers.length < 3) {
-            customerIds.add(order.customerId);
-            const customer = await getCustomer(order.customerId);
+        if (customerOrderMap.size >= 3) break;
+        if (!customerOrderMap.has(order.customerId)) {
+            const customer = customers.find(c => c.id === order.customerId);
             if (customer) {
-                recentCustomers.push({
-                    customer,
-                    order
-                });
+                customerOrderMap.set(order.customerId, { customer, order });
             }
         }
     }
-    
-    displayRecentCustomers(recentCustomers);
-}
 
-function displayRecentCustomers(recentCustomers) {
-    const container = document.getElementById('recent-customers-list');
-    if (!container) return;
-    
+    const recentCustomers = Array.from(customerOrderMap.values());
+
     if (recentCustomers.length === 0) {
         container.innerHTML = '<div style="color: rgba(255,255,255,0.7); text-align: center; padding: 20px;">No recent orders</div>';
         return;
     }
-    
+
+    // Garment icons
+    const garmentIcons = {
+        jacket: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
+            <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+                <path d="M6 10L18 4H30L42 10L40 35H34V44H24H14V35H8L6 10Z"/>
+                <path d="M14 35L14 20"/>
+                <path d="M34 35V20"/>
+                <path d="M24 10C27.3137 10 30 7.31371 30 4H18C18 7.31371 20.6863 10 24 10Z"/>
+            </g>
+        </svg>`,
+        pants: `<svg width="24" height="24" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
+            <path fill="currentColor" d="m223.88 214l-22-176A16 16 0 0 0 186 24H70a16 16 0 0 0-15.88 14l-22 176A16 16 0 0 0 48 232h40.69a16 16 0 0 0 15.51-12.06l23.8-92l23.79 91.94A16 16 0 0 0 167.31 232H208a16 16 0 0 0 15.88-18M192.9 95.2A32.13 32.13 0 0 1 169 72h21ZM186 40l2 16H68l2-16ZM66 72h21a32.13 32.13 0 0 1-23.9 23.2Zm22.69 144H48l13-104.27A48.08 48.08 0 0 0 103.32 72H120v23Zm78.6-.06L136 95V72h16.68A48.08 48.08 0 0 0 195 111.73L208 216Z"/>
+        </svg>`,
+        shirt: `<svg width="24" height="24" viewBox="0 0 2048 2048" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
+            <path fill="currentColor" d="m2048 384l-128 512h-256v1024H384V896H128L0 384l768-256q0 53 20 99t55 82t81 55t100 20q53 0 99-20t82-55t55-81t20-100zm-153 84l-524-175q-24 50-60 90t-82 69t-97 44t-108 16q-56 0-108-15t-97-44t-81-69t-61-91L153 468l75 300h284v1024h1024V768h284z"/>
+        </svg>`
+    };
+
     container.innerHTML = recentCustomers.map(({customer, order}) => {
-        const garment = order.items && order.items[0] ? order.items[0].type : 'order';
+        const garment = order.items && order.items[0] ? order.items[0].type : 'jacket';
         const garmentText = garment.charAt(0).toUpperCase() + garment.slice(1);
-        const garmentIcons = {
-    jacket: `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-        <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
-            <path d="M6 10L18 4H30L42 10L40 35H34V44H24H14V35H8L6 10Z"/>
-            <path d="M14 35L14 20"/>
-            <path d="M34 35V20"/>
-            <path d="M24 10C27.3137 10 30 7.31371 30 4H18C18 7.31371 20.6863 10 24 10Z"/>
-        </g>
-    </svg>`,
-    pants: `<svg width="24" height="24" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-        <path fill="currentColor" d="m223.88 214l-22-176A16 16 0 0 0 186 24H70a16 16 0 0 0-15.88 14l-22 176A16 16 0 0 0 48 232h40.69a16 16 0 0 0 15.51-12.06l23.8-92l23.79 91.94A16 16 0 0 0 167.31 232H208a16 16 0 0 0 15.88-18M192.9 95.2A32.13 32.13 0 0 1 169 72h21ZM186 40l2 16H68l2-16ZM66 72h21a32.13 32.13 0 0 1-23.9 23.2Zm22.69 144H48l13-104.27A48.08 48.08 0 0 0 103.32 72H120v23Zm78.6-.06L136 95V72h16.68A48.08 48.08 0 0 0 195 111.73L208 216Z"/>
-    </svg>`,
-    shirt: `<svg width="24" height="24" viewBox="0 0 2048 2048" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-        <path fill="currentColor" d="m2048 384l-128 512h-256v1024H384V896H128L0 384l768-256q0 53 20 99t55 82t81 55t100 20q53 0 99-20t82-55t55-81t20-100zm-153 84l-524-175q-24 50-60 90t-82 69t-97 44t-108 16q-56 0-108-15t-97-44t-81-69t-61-91L153 468l75 300h284v1024h1024V768h284z"/>
-    </svg>`
-};
-const icon = garmentIcons[garment] || garmentIcons.jacket;
-        
+        const icon = garmentIcons[garment] || garmentIcons.jacket;
+
         // Determine status
         let statusBadges = '';
         if (order.completed) {
             statusBadges = '<span class="status-badge status-ready">Ready</span>';
         } else {
             statusBadges = '<span class="status-badge status-progress">In Progress</span>';
-            if (order.urgent) {
-                statusBadges += '<span class="status-badge status-pending">Urgent</span>';
-            } else {
-                statusBadges += '<span class="status-badge status-pending">Pending</span>';
-            }
+            statusBadges += '<span class="status-badge status-pending">Pending</span>';
         }
-        
+
         return `
-            <div class="customer-card glass-card-customer" onclick="showCustomerDetail(${customer.id})">
+            <div class="customer-card glass-card-customer" onclick="showCustomerDetail('${customer.id}')">
                 <div class="customer-info">
                     <div class="customer-name">${customer.name}</div>
                     <div class="customer-garment">${icon} ${garmentText}</div>
@@ -404,7 +591,7 @@ function displayCustomers(customers) {
     }
 
     container.innerHTML = customers.map(customer => `
-        <div class="customer-item" onclick="showCustomerDetail(${customer.id})">
+        <div class="customer-item" onclick="showCustomerDetail('${customer.id}')">
             <div>
                 <h3>${customer.name}</h3>
                 <p>${customer.phone || 'No phone'}</p>
@@ -454,7 +641,7 @@ async function displayCustomersNew(customers) {
         const orderCount = customer.orderCount;
 
         return `
-            <div class="customer-card-item" onclick="showCustomerDetail(${customer.id})">
+            <div class="customer-card-item" onclick="showCustomerDetail('${customer.id}')">
                 <div class="customer-initial-circle">${initial}</div>
                 <div class="customer-card-info">
                     <div class="customer-card-name">${customer.name}</div>
@@ -1177,74 +1364,3 @@ async function getOrder(orderId) {
     });
 }
 // Add this function to app.js
-async function displayRecentCustomers() {
-    const orders = await getAllOrders();
-    const customers = await getAllCustomers();
-    const container = document.getElementById('recent-customers-list');
-    
-    if (!container) return;
-    
-    // Get unique customers with orders
-    const customerOrderMap = {};
-    
-    orders.forEach(order => {
-        if (!customerOrderMap[order.customerId]) {
-            customerOrderMap[order.customerId] = [];
-        }
-        customerOrderMap[order.customerId].push(order);
-    });
-    
-    // Sort by most recent order
-    const recentCustomers = Object.keys(customerOrderMap)
-        .map(id => ({
-            customer: customers.find(c => c.id === parseInt(id)),
-            orders: customerOrderMap[id]
-        }))
-        .filter(item => item.customer)
-        .sort((a, b) => {
-            const lastA = new Date(a.orders[a.orders.length - 1].createdAt);
-            const lastB = new Date(b.orders[b.orders.length - 1].createdAt);
-            return lastB - lastA;
-        })
-        .slice(0, 5);
-    
-    // Garment icons
-    const garmentIcons = {
-        jacket: `<svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-            <g stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
-                <path d="M6 10L18 4H30L42 10L40 35H34V44H24H14V35H8L6 10Z"/>
-                <path d="M14 35L14 20"/>
-                <path d="M34 35V20"/>
-                <path d="M24 10C27.3137 10 30 7.31371 30 4H18C18 7.31371 20.6863 10 24 10Z"/>
-            </g>
-        </svg>`,
-        pants: `<svg width="20" height="20" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-            <path fill="white" d="m223.88 214l-22-176A16 16 0 0 0 186 24H70a16 16 0 0 0-15.88 14l-22 176A16 16 0 0 0 48 232h40.69a16 16 0 0 0 15.51-12.06l23.8-92l23.79 91.94A16 16 0 0 0 167.31 232H208a16 16 0 0 0 15.88-18M192.9 95.2A32.13 32.13 0 0 1 169 72h21ZM186 40l2 16H68l2-16ZM66 72h21a32.13 32.13 0 0 1-23.9 23.2Zm22.69 144H48l13-104.27A48.08 48.08 0 0 0 103.32 72H120v23Zm78.6-.06L136 95V72h16.68A48.08 48.08 0 0 0 195 111.73L208 216Z"/>
-        </svg>`,
-        shirt: `<svg width="20" height="20" viewBox="0 0 2048 2048" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-            <path fill="white" d="m2048 384l-128 512h-256v1024H384V896H128L0 384l768-256q0 53 20 99t55 82t81 55t100 20q53 0 99-20t82-55t55-81t20-100zm-153 84l-524-175q-24 50-60 90t-82 69t-97 44t-108 16q-56 0-108-15t-97-44t-81-69t-61-91L153 468l75 300h284v1024h1024V768h284z"/>
-        </svg>`
-    };
-    
-    container.innerHTML = recentCustomers.map(item => {
-        const lastOrder = item.orders[item.orders.length - 1];
-        const garmentType = lastOrder.items[0].type;
-        const garmentText = garmentType.charAt(0).toUpperCase() + garmentType.slice(1);
-        const icon = garmentIcons[garmentType] || garmentIcons.jacket;
-        
-        return `
-            <div class="customer-card glass-card-customer" onclick="showCustomerDetail(${item.customer.id})">
-                <div class="customer-info">
-                    <div class="customer-name">${item.customer.name}</div>
-                    <div class="customer-garment">${icon}${garmentText}</div>
-                    <div class="customer-status">
-                        <span class="status-badge ${lastOrder.completed ? 'status-completed' : 'status-progress'}">
-                            ${lastOrder.completed ? 'Completed' : 'In Progress'}
-                        </span>
-                    </div>
-                </div>
-                <div class="customer-arrow">→</div>
-            </div>
-        `;
-    }).join('');
-}
