@@ -16,6 +16,38 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+
+/* ==================== SCROLLING FIX ==================== */
+
+/* Prevent scroll freeze on iOS */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix momentum scrolling issues */
+.screen {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Prevent rubber-band effect at document level */
+html, body {
+  overscroll-behavior: none;
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Allow scrolling in screens only */
+.screen {
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+}
+
 /* Import Unbounded font from Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap");
 
@@ -370,22 +402,23 @@ body {
 .recent-customers-popup {
   position: relative;
   width: 394px;
-  height: 400px;
+  min-height: 400px;
+  max-height: 500px;
   margin: 30px auto 0 auto;
   background: linear-gradient(
     180deg,
     rgba(232, 212, 160, 0.15) 0%,
     rgba(232, 212, 160, 0.25) 100%
   );
-  backdrop-filter: blur(20px); /* REDUCED from 84px */
+  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 24px 24px 0 0;
-  padding: 12px 20px calc(120px + env(safe-area-inset-bottom, 0px)) 20px;
+  padding: 12px 20px 20px 20px;
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
   z-index: 5;
-  max-height: none;
-  overflow-y: auto;
-  -webkit-text-size-adjust: none;
-  text-size-adjust: none;
+  overflow: hidden; /* NO scrolling on parent */
+  display: flex;
+  flex-direction: column;
 }
 
 .popup-handle {
@@ -394,6 +427,7 @@ body {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
   margin: 0 auto 16px;
+  flex-shrink: 0;
 }
 
 .popup-header {
@@ -402,8 +436,36 @@ body {
   font-weight: 600;
   color: #ffffff;
   margin-bottom: 16px;
+  flex-shrink: 0;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
+}
+
+.customer-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-right: 5px;
+}
+
+.customer-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.customer-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.customer-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.customer-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* Customer Cards */
@@ -926,6 +988,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  -webkit-overflow-scrolling: touch; /* smooth iOS scrolling */
+  overscroll-behavior: contain; /* prevent scroll chaining */
+  max-height: calc(100vh - 350px); /* ensure scrollable area */
 }
 
 /* NO ::before - blur is from parent */
@@ -1257,6 +1322,9 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: scroll-position;
 }
 
 /* Blurred Background - FIXED */
@@ -1611,6 +1679,9 @@ body {
   overflow-x: hidden;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   padding-bottom: 120px; /* ADD PADDING AT BOTTOM */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: scroll-position;
 }
 
 /* Blurred Background */
@@ -2092,6 +2163,9 @@ body {
   overflow-x: hidden;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   padding-bottom: 120px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: scroll-position;
 }
 
 .new-order-content-container::before {
@@ -2606,6 +2680,9 @@ select.form-input-order {
   overflow-x: hidden;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   padding-bottom: 120px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: scroll-position;
 }
 
 .order-detail-content-container::before {

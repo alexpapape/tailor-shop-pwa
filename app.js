@@ -117,20 +117,11 @@ function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
-    // Close the plus menu when navigating
-closePlusMenu();  
-    // Show the selected screen
-    document.getElementById(screenId).classList.add('active');
-    
-    // Load recent customers when home screen is shown
-    if (screenId === 'screen-home') {
-        displayRecentCustomers();
-    }
+
+    closePlusMenu();
 
     document.getElementById(screenId).classList.add('active');
     currentScreen = screenId;
-
-    closePlusMenu();
 
     // Update navigation active states
     updateNavigationActiveStates(screenId);
@@ -537,7 +528,7 @@ let currentOrderId = null;
 
 async function handleCustomerSubmit(e) {
     e.preventDefault();
-    
+
     const customer = {
         name: document.getElementById('customer-name').value,
         phone: document.getElementById('customer-phone').value,
@@ -545,15 +536,21 @@ async function handleCustomerSubmit(e) {
         email: document.getElementById('customer-email').value,
         createdDate: new Date().toISOString()
     };
-    
+
     try {
         const customerId = await addCustomer(customer);
+
+        // UPDATE EVERYTHING BEFORE SHOWING DETAIL
+        await loadCustomers();
+        await loadRecentCustomers();
+        await updateStats();
+
         alert('✅ Customer saved successfully!');
         showCustomerDetail(customerId);
     } catch (error) {
         alert('❌ Error saving customer: ' + error);
     }
-    
+
     return false;
 }
 
@@ -1109,7 +1106,7 @@ async function handleNewOrderSubmit(e) {
     });
     
     const order = {
-        customerId: parseInt(customerId),
+        customerId: customerId,
         orderDate: orderDate,
         deliveryDate: deliveryDate || null,
         items: [{
@@ -1119,13 +1116,16 @@ async function handleNewOrderSubmit(e) {
         completed: false,
         createdAt: new Date().toISOString()
     };
-    
+
     try {
         await addOrder(order);
         alert('✅ Order saved successfully!');
-        showCustomerDetail(parseInt(customerId));
-        updateStats();
-        loadRecentCustomers();
+
+        // Refresh recent customers and stats
+        await loadRecentCustomers();
+        await updateStats();
+
+        showCustomerDetail(customerId);
     } catch (error) {
         alert('❌ Error saving order: ' + error);
     }
@@ -1291,10 +1291,13 @@ async function handleOrderUpdate(e) {
     
     try {
         await updateOrder(currentEditOrderId, order);
+
+        // UPDATE EVERYTHING BEFORE SHOWING DETAIL
+        await loadRecentCustomers();
+        await updateStats();
+
         alert('✅ Order updated successfully!');
         showCustomerDetail(order.customerId);
-        updateStats();
-        loadRecentCustomers();
     } catch (error) {
         alert('❌ Error updating order: ' + error);
     }
@@ -1307,17 +1310,20 @@ async function confirmDeleteOrder() {
         alert('❌ No order selected');
         return;
     }
-    
+
     if (confirm('⚠️ Are you sure you want to delete this order? This cannot be undone!')) {
         const order = await getOrder(currentEditOrderId);
         const customerId = order.customerId;
-        
+
         try {
             await deleteOrder(currentEditOrderId);
+
+            // UPDATE EVERYTHING BEFORE SHOWING DETAIL
+            await loadRecentCustomers();
+            await updateStats();
+
             alert('✅ Order deleted successfully!');
             showCustomerDetail(customerId);
-            updateStats();
-            loadRecentCustomers();
         } catch (error) {
             alert('❌ Error deleting order: ' + error);
         }
@@ -1354,74 +1360,3 @@ async function getOrder(orderId) {
     });
 }
 // Add this function to app.js
-async function displayRecentCustomers() {
-    const orders = await getAllOrders();
-    const customers = await getAllCustomers();
-    const container = document.getElementById('recent-customers-list');
-    
-    if (!container) return;
-    
-    // Get unique customers with orders
-    const customerOrderMap = {};
-    
-    orders.forEach(order => {
-        if (!customerOrderMap[order.customerId]) {
-            customerOrderMap[order.customerId] = [];
-        }
-        customerOrderMap[order.customerId].push(order);
-    });
-    
-    // Sort by most recent order
-    const recentCustomers = Object.keys(customerOrderMap)
-        .map(id => ({
-            customer: customers.find(c => c.id === parseInt(id)),
-            orders: customerOrderMap[id]
-        }))
-        .filter(item => item.customer)
-        .sort((a, b) => {
-            const lastA = new Date(a.orders[a.orders.length - 1].createdAt);
-            const lastB = new Date(b.orders[b.orders.length - 1].createdAt);
-            return lastB - lastA;
-        })
-        .slice(0, 5);
-    
-    // Garment icons
-    const garmentIcons = {
-        jacket: `<svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-            <g stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
-                <path d="M6 10L18 4H30L42 10L40 35H34V44H24H14V35H8L6 10Z"/>
-                <path d="M14 35L14 20"/>
-                <path d="M34 35V20"/>
-                <path d="M24 10C27.3137 10 30 7.31371 30 4H18C18 7.31371 20.6863 10 24 10Z"/>
-            </g>
-        </svg>`,
-        pants: `<svg width="20" height="20" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-            <path fill="white" d="m223.88 214l-22-176A16 16 0 0 0 186 24H70a16 16 0 0 0-15.88 14l-22 176A16 16 0 0 0 48 232h40.69a16 16 0 0 0 15.51-12.06l23.8-92l23.79 91.94A16 16 0 0 0 167.31 232H208a16 16 0 0 0 15.88-18M192.9 95.2A32.13 32.13 0 0 1 169 72h21ZM186 40l2 16H68l2-16ZM66 72h21a32.13 32.13 0 0 1-23.9 23.2Zm22.69 144H48l13-104.27A48.08 48.08 0 0 0 103.32 72H120v23Zm78.6-.06L136 95V72h16.68A48.08 48.08 0 0 0 195 111.73L208 216Z"/>
-        </svg>`,
-        shirt: `<svg width="20" height="20" viewBox="0 0 2048 2048" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-            <path fill="white" d="m2048 384l-128 512h-256v1024H384V896H128L0 384l768-256q0 53 20 99t55 82t81 55t100 20q53 0 99-20t82-55t55-81t20-100zm-153 84l-524-175q-24 50-60 90t-82 69t-97 44t-108 16q-56 0-108-15t-97-44t-81-69t-61-91L153 468l75 300h284v1024h1024V768h284z"/>
-        </svg>`
-    };
-    
-    container.innerHTML = recentCustomers.map(item => {
-        const lastOrder = item.orders[item.orders.length - 1];
-        const garmentType = lastOrder.items[0].type;
-        const garmentText = garmentType.charAt(0).toUpperCase() + garmentType.slice(1);
-        const icon = garmentIcons[garmentType] || garmentIcons.jacket;
-        
-        return `
-            <div class="customer-card glass-card-customer" onclick="showCustomerDetail(${item.customer.id})">
-                <div class="customer-info">
-                    <div class="customer-name">${item.customer.name}</div>
-                    <div class="customer-garment">${icon}${garmentText}</div>
-                    <div class="customer-status">
-                        <span class="status-badge ${lastOrder.completed ? 'status-completed' : 'status-progress'}">
-                            ${lastOrder.completed ? 'Completed' : 'In Progress'}
-                        </span>
-                    </div>
-                </div>
-                <div class="customer-arrow">→</div>
-            </div>
-        `;
-    }).join('');
-}
