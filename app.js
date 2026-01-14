@@ -1119,13 +1119,13 @@ async function handleNewOrderSubmit(e) {
 
     try {
         await addOrder(order);
-        alert('✅ Order saved successfully!');
 
-        // Refresh recent customers and stats
+        // Refresh data
         await loadRecentCustomers();
         await updateStats();
 
-        showCustomerDetail(customerId);
+        alert('✅ Order saved successfully!');
+        showCustomerDetail(parseInt(customerId));
     } catch (error) {
         alert('❌ Error saving order: ' + error);
     }

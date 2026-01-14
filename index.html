@@ -105,30 +105,9 @@
         <div class="recent-customers-popup">
             <div class="popup-handle"></div>
             <div class="popup-header">Recent Customers</div>
-            <div class="customer-list" id="recent-customers-list">
-                <!-- Customer cards will be inserted here by JavaScript -->
-                <div class="customer-card glass-card-customer" onclick="showCustomerDetail(1)">
-                    <div class="customer-info">
-                        <div class="customer-name">Nikos Papa</div>
-                        <div class="customer-garment">Pants</div>
-                        <div class="customer-status">
-                            <span class="status-badge status-progress">In Progress</span>
-                            <span class="status-badge status-pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="customer-arrow">→</div>
-                </div>
-
-                <div class="customer-card glass-card-customer" onclick="showCustomerDetail(2)">
-                    <div class="customer-info">
-                        <div class="customer-name">Priya Sharma</div>
-                        <div class="customer-garment">Shirt</div>
-                        <div class="customer-status">
-                            <span class="status-badge status-progress">In Progress</span>
-                            <span class="status-badge status-pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="customer-arrow">→</div>
+            <div class="recent-customers-scroll-container">
+                <div id="recent-customers-list">
+                    <!-- Customer cards will be inserted here by JavaScript -->
                 </div>
             </div>
         </div>
