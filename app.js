@@ -440,17 +440,22 @@ async function updateStats() {
 // ==================== RECENT CUSTOMERS ====================
 
 async function loadRecentCustomers() {
+    console.log('🔍 Loading recent customers...');
+
     const orders = await getAllOrders();
+    console.log('📦 Orders:', orders);
+
     const customerIds = new Set();
     const recentCustomers = [];
-    
+
     // Get unique customers from recent orders
     orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-    
+
     for (const order of orders) {
         if (!customerIds.has(order.customerId) && recentCustomers.length < 3) {
             customerIds.add(order.customerId);
             const customer = await getCustomer(order.customerId);
+            console.log(`👤 Customer for ID ${order.customerId}:`, customer);
             if (customer) {
                 recentCustomers.push({
                     customer,
@@ -459,19 +464,28 @@ async function loadRecentCustomers() {
             }
         }
     }
-    
+
+    console.log('✅ Recent customers to display:', recentCustomers);
     displayRecentCustomers(recentCustomers);
 }
 
 function displayRecentCustomers(recentCustomers) {
     const container = document.getElementById('recent-customers-list');
-    if (!container) return;
-    
-    if (recentCustomers.length === 0) {
-        container.innerHTML = '<div style="color: rgba(255,255,255,0.7); text-align: center; padding: 20px;">No recent orders</div>';
+    console.log('📍 Container:', container);
+
+    if (!container) {
+        console.error('❌ Container #recent-customers-list not found!');
         return;
     }
-    
+
+    if (recentCustomers.length === 0) {
+        console.log('ℹ️ No recent customers to display');
+        container.innerHTML = '<div style="color: rgba(255,255,255,0.7); text-align: center; padding: 20px;">No orders yet. Create your first order!</div>';
+        return;
+    }
+
+    console.log(`📝 Displaying ${recentCustomers.length} recent customers`);
+
     container.innerHTML = recentCustomers.map(({customer, order}) => {
         const garment = order.items && order.items[0] ? order.items[0].type : 'order';
         const garmentText = garment.charAt(0).toUpperCase() + garment.slice(1);
