@@ -239,8 +239,185 @@ function toggleMenu() {
     alert('Menu - Coming soon!\nSettings, Profile, Help');
 }
 
-function showNotifications() {
-    alert('Notifications - Coming soon!\nDelivery reminders, Order updates');
+// ==================== NOTIFICATIONS SYSTEM ====================
+
+async function showNotifications() {
+    try {
+        const orders = await getAllOrders();
+        const customers = await getAllCustomers();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Categorize orders
+        const overdueOrders = [];
+        const todayOrders = [];
+        const upcomingOrders = [];
+        const noDateOrders = [];
+
+        for (const order of orders) {
+            if (order.completed) continue;
+
+            const customer = customers.find(c => c.id === order.customerId);
+            if (!customer) continue;
+
+            const orderWithCustomer = { ...order, customerName: customer.name };
+
+            if (!order.deliveryDate) {
+                noDateOrders.push(orderWithCustomer);
+                continue;
+            }
+
+            const deliveryDate = new Date(order.deliveryDate);
+            deliveryDate.setHours(0, 0, 0, 0);
+
+            if (deliveryDate < today) {
+                overdueOrders.push(orderWithCustomer);
+            } else if (deliveryDate.getTime() === today.getTime()) {
+                todayOrders.push(orderWithCustomer);
+            } else if (deliveryDate <= new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)) {
+                upcomingOrders.push(orderWithCustomer);
+            }
+        }
+
+        createNotificationPopup(overdueOrders, todayOrders, upcomingOrders, noDateOrders);
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        alert('Error loading notifications');
+    }
+}
+
+function createNotificationPopup(overdue, today, upcoming, noDate) {
+    const existingPopup = document.getElementById('notification-popup');
+    if (existingPopup) existingPopup.remove();
+
+    const existingOverlay = document.getElementById('notification-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'notification-overlay';
+    overlay.className = 'notification-overlay';
+    overlay.onclick = closeNotifications;
+    document.body.appendChild(overlay);
+
+    const popup = document.createElement('div');
+    popup.id = 'notification-popup';
+    popup.className = 'notification-popup';
+
+    let content = `
+        <div class="notification-popup-header">
+            <div class="notification-popup-title">Delivery Reminders</div>
+            <button class="notification-close-btn" onclick="closeNotifications()">×</button>
+        </div>
+        <div class="notification-popup-content">
+    `;
+
+    const hasNotifications = overdue.length > 0 || today.length > 0 || upcoming.length > 0 || noDate.length > 0;
+
+    if (!hasNotifications) {
+        content += `
+            <div class="notification-empty">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔔</div>
+                <div>No delivery reminders</div>
+                <div style="font-size: 14px; margin-top: 8px;">All orders are on track!</div>
+            </div>
+        `;
+    } else {
+        if (overdue.length > 0) {
+            content += `<div class="notification-section"><div class="notification-section-title">⚠️ Overdue (${overdue.length})</div>`;
+            overdue.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                const daysOverdue = Math.floor((new Date() - new Date(order.deliveryDate)) / (1000 * 60 * 60 * 24));
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); setTimeout(() => showOrderDetail('${order.id}'), 100);">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-overdue">OVERDUE</div>
+                        </div>
+                        <div class="notification-card-details">${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order</div>
+                        <div class="notification-card-date">${daysOverdue} ${daysOverdue === 1 ? 'day' : 'days'} overdue</div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+
+        if (today.length > 0) {
+            content += `<div class="notification-section"><div class="notification-section-title">📅 Due Today (${today.length})</div>`;
+            today.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); setTimeout(() => showOrderDetail('${order.id}'), 100);">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-today">TODAY</div>
+                        </div>
+                        <div class="notification-card-details">${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order</div>
+                        <div class="notification-card-date">Ready for pickup today</div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+
+        if (upcoming.length > 0) {
+            content += `<div class="notification-section"><div class="notification-section-title">📆 This Week (${upcoming.length})</div>`;
+            upcoming.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                const daysUntil = Math.ceil((new Date(order.deliveryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); setTimeout(() => showOrderDetail('${order.id}'), 100);">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-upcoming">UPCOMING</div>
+                        </div>
+                        <div class="notification-card-details">${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order</div>
+                        <div class="notification-card-date">Due in ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}</div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+
+        if (noDate.length > 0) {
+            content += `<div class="notification-section"><div class="notification-section-title">📋 No Delivery Date (${noDate.length})</div>`;
+            noDate.forEach(order => {
+                const garmentType = order.items && order.items[0] ? order.items[0].type : 'order';
+                content += `
+                    <div class="notification-card" onclick="closeNotifications(); setTimeout(() => showOrderDetail('${order.id}'), 100);">
+                        <div class="notification-card-header">
+                            <div class="notification-card-customer">${order.customerName}</div>
+                            <div class="notification-card-badge badge-no-date">NO DATE</div>
+                        </div>
+                        <div class="notification-card-details">${garmentType.charAt(0).toUpperCase() + garmentType.slice(1)} order</div>
+                        <div class="notification-card-date">Delivery date not set</div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+    }
+
+    content += `</div>`;
+    popup.innerHTML = content;
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        overlay.classList.add('active');
+        popup.classList.add('active');
+    }, 10);
+}
+
+function closeNotifications() {
+    const popup = document.getElementById('notification-popup');
+    const overlay = document.getElementById('notification-overlay');
+
+    if (popup) popup.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+
+    setTimeout(() => {
+        if (popup) popup.remove();
+        if (overlay) overlay.remove();
+    }, 300);
 }
 
 // ==================== STATS LOADING ====================
