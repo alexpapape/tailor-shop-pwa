@@ -196,10 +196,9 @@ body {
 
 .home-screen {
   background: transparent;
-  overflow: hidden;
-  position: fixed;
-  height: 100vh;
-  width: 100%;
+  padding-bottom: 150px;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .home-background {
@@ -399,15 +398,12 @@ body {
   display: none !important;
 }
 
-/* Recent Customers Popup - FIXED POSITION WITH INTERNAL SCROLLING */
+/* Recent Customers Popup - ORIGINAL POSITION WITH INTERNAL SCROLLING */
 .recent-customers-popup {
-  position: fixed;
-  top: 380px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   width: 394px;
-  height: calc(100vh - 380px - env(safe-area-inset-bottom, 0px) - 100px);
-  margin: 0;
+  height: 400px;
+  margin: 30px auto 0 auto;
   background: linear-gradient(
     180deg,
     rgba(232, 212, 160, 0.15) 0%,
@@ -416,7 +412,7 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 24px 24px 0 0;
-  padding: 12px 20px 20px 20px;
+  padding: 12px 20px calc(120px + env(safe-area-inset-bottom, 0px)) 20px;
   z-index: 5;
   overflow: hidden;
   -webkit-text-size-adjust: none;
